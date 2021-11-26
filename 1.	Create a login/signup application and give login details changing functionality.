@@ -1,0 +1,1141 @@
+MainActivity.Java
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
+
+
+
+public class MainActivity extends AppCompatActivity {
+    EditText editTextUsername, editTextPassword;
+    Button buttonLogin;
+    TextView textViewRegister;
+    DatabaseHelper db;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        getSupportActionBar().hide();       // Hide actionbar
+        db = new DatabaseHelper(this);
+        editTextUsername = findViewById(R.id.editTextUsername);
+        editTextPassword = findViewById(R.id.editTextPassword);
+        buttonLogin = findViewById(R.id.buttonLogin);
+
+        textViewRegister = findViewById(R.id.textViewRegister);
+        textViewRegister.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, RegisterActivity.class));
+            }
+        });
+
+        buttonLogin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+	//trim() “normalize” all spacing.leaves just one space between all words inside the string.
+                    String email = editTextUsername.getText().toString().trim();
+                String password = editTextPassword.getText().toString().trim();
+
+
+                Boolean res = db.checkUser(email, password);
+                User user = new User();
+                Log.d("IDdetails", String.valueOf(user.getId()));
+
+
+                if (res == true) {
+                    Intent HomePage = new Intent(MainActivity.this, HomeActivity.class);
+                    Bundle b = new Bundle(); // Bundle is generally used for passing data between various activities of android.
+                    b.putString("textViewEmail", editTextUsername.getText().toString());
+                    b.putString("textViewPassword", editTextPassword.getText().toString());
+
+                    String y = db.selectOneUserSendUserName(email, password);
+                    int x = db.selectOneUserSendId(email,password);
+                    Log.d("TAG" , "ID =  " + x);
+
+                    b.putString("textViewUsername",y);
+                    b.putString("textViewId", String.valueOf(x));
+
+                    HomePage.putExtras(b);
+                    startActivity(HomePage);
+                } else {
+                    Toast.makeText(MainActivity.this, "Login Error", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+
+    }
+}
+
+activity_main.xml
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/input_group"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="25dp"
+        android:layout_marginRight="25dp"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif"
+            android:text="SIGN IN"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp" />
+
+
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/input_group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="25dp"
+        android:layout_marginRight="25dp"
+        android:layout_marginBottom="50dp"
+        android:gravity="center"
+        android:orientation="vertical">
+
+
+        <EditText
+            android:id="@+id/editTextUsername"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/edit_text_top"
+            android:hint="Username"
+            android:inputType="textPersonName"
+            android:padding="15dp" />
+
+        <EditText
+            android:id="@+id/editTextPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/edit_text_bottom"
+            android:hint="Password"
+            android:inputType="textPassword"
+            android:padding="15dp" />
+
+
+        <Button
+            android:id="@+id/buttonLogin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/button"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:text="SIGN IN"
+            android:textAllCaps="false"
+            android:textColor="#FE5295"
+            android:textSize="17sp" />
+
+        <TextView
+            android:id="@+id/textViewRegister"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="3dp"
+            android:fontFamily="sans-serif"
+            android:padding="10dp"
+            android:text="Don't Have an Account?  Sign Up"
+            android:textAllCaps="true"
+            android:textColor="#FE5295"
+            android:textSize="13dp"
+            android:textStyle="bold" />
+
+
+    </LinearLayout>
+
+</RelativeLayout>
+
+RegisterActivity.Java
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import Data.DatabaseHelper;
+import Model.User;
+
+public class RegisterActivity extends AppCompatActivity {
+
+    DatabaseHelper db;
+    EditText editTextUsername, editTextEmail, editTextPassword, editTextCnfPassword;
+    Button buttonRegister;
+
+    TextView textViewLogin;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_register);
+
+        db = new DatabaseHelper(this);
+        editTextUsername = findViewById(R.id.editTextUsername);
+        editTextEmail = findViewById(R.id.editTextEmail);
+        editTextPassword = findViewById(R.id.editTextPassword);
+        editTextCnfPassword = findViewById(R.id.editTextCnfPassword);
+        buttonRegister = findViewById(R.id.buttonRegister);
+
+        textViewLogin = findViewById(R.id.textViewLogin);
+        textViewLogin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(RegisterActivity.this, MainActivity.class));
+            }
+        });
+
+        buttonRegister.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                User user = new User();
+                String userName = editTextUsername.getText().toString().trim();
+                String email = editTextEmail.getText().toString().trim();
+                String password = editTextPassword.getText().toString().trim();
+                String passwordConf = editTextCnfPassword.getText().toString().trim();
+
+                if (password.equals(passwordConf)) {
+                    user.setUserName(userName);
+                    user.setEmail(email);
+
+                    user.setPassword(password);
+                    long val = db.addUser(user);
+                    if (val > 0) {
+                        Toast.makeText(RegisterActivity.this, "You have registered", Toast.LENGTH_SHORT).show();
+                        Intent moveToLogin = new Intent(RegisterActivity.this, MainActivity.class);
+
+
+                        startActivity(moveToLogin);
+                    } else
+                        Toast.makeText(RegisterActivity.this, "Registeration Error", Toast.LENGTH_SHORT).show();
+
+                    Log.d("Item Added ID : ", String.valueOf(db.getUsersCount()));
+                } else {
+                    Toast.makeText(RegisterActivity.this, "Password is not matching", Toast.LENGTH_SHORT).show();
+
+                }
+            }
+        });
+    }
+}
+
+activity_register.xml
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginLeft="25dp"
+        android:layout_marginRight="25dp"
+        android:gravity="center"
+        android:layout_alignParentTop="true"
+        android:layout_above="@id/input_group">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif"
+            android:text="SIGN UP"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp"/>
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/input_group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginLeft="25dp"
+        android:layout_marginRight="25dp"
+        android:layout_marginBottom="50dp"
+        android:layout_alignParentBottom="true"
+        android:gravity="center">
+
+        <EditText
+            android:id="@+id/editTextUsername"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/edit_text_top"
+            android:hint="Username"
+            android:inputType="textPersonName"
+            android:padding="15dp" />
+
+        <EditText
+            android:id="@+id/editTextEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/edit_text_middle"
+            android:hint="Email"
+            android:inputType="textEmailAddress"
+            android:padding="15dp" />
+
+        <EditText
+            android:id="@+id/editTextPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/edit_text_middle"
+            android:hint="Password"
+            android:inputType="textPassword"
+            android:padding="15dp"/>
+        <EditText
+            android:id="@+id/editTextCnfPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/edit_text_middle"
+            android:hint="Password"
+            android:inputType="textPassword"
+            android:padding="15dp"/>
+
+
+
+        <Button
+            android:id="@+id/buttonRegister"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/button"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:text="SIGN UP"
+            android:textAllCaps="false"
+            android:textColor="#FE5295"
+            android:textSize="17sp"/>
+
+        <TextView
+            android:id="@+id/textViewLogin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="3dp"
+            android:padding="10dp"
+            android:text="Already Have an Account?  Sign in"
+            android:textAllCaps="true"
+            android:textSize="13dp"
+            android:textStyle="bold"
+            android:textColor="#FE5295"
+            android:fontFamily="sans-serif"/>
+
+    </LinearLayout>
+</RelativeLayout>
+
+HomeActivity.Java
+
+import android.app.AlertDialog;
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.android.material.snackbar.Snackbar;
+
+import Data.DatabaseHelper;
+import Model.User;
+
+public class HomeActivity extends AppCompatActivity {
+    TextView textViewUserName, textViewName, textViewPassword, textViewEmail, textViewLogout;
+
+    Button btnEditDetails, btnChangePassword;
+
+    private AlertDialog.Builder alertDialogBuilder;
+    private AlertDialog dialog;
+    private LayoutInflater inflater;
+
+    String textViewUsernameString;
+    String textViewNameString;
+    String textViewEmailString;
+    String textViewPasswordString;
+    int textViewID;
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_home);
+
+        // calling the action bar
+        ActionBar actionBar = getSupportActionBar();
+
+
+
+        textViewUserName = findViewById(R.id.textViewUserName);
+        textViewName = findViewById(R.id.textViewName);
+      //  textViewPassword = findViewById(R.id.textViewPassword);
+        textViewEmail = findViewById(R.id.textViewEmail);
+        textViewLogout = findViewById(R.id.textViewLogout);
+
+        final Bundle b = getIntent().getExtras();
+
+
+        textViewID = Integer.parseInt(b.getString("textViewId"));
+        textViewUsernameString = b.getString("textViewUsername");
+        textViewNameString = b.getString("textViewUsername");
+        textViewEmailString = b.getString("textViewEmail");
+      //  textViewPasswordString = b.getString("textViewPassword");
+
+
+        Log.d("Data", String.valueOf(textViewID));
+        Log.d("Data", "User name: " + textViewUsernameString);
+        Log.d("Data", "name: " + textViewNameString);
+        Log.d("Data", "Email: " + textViewEmailString);
+     //   Log.d("Data", "password: " + textViewPasswordString);
+
+        textViewUserName.setText("Hello " + textViewUsernameString);
+        textViewName.setText(textViewNameString);
+       // textViewPassword.setText(textViewPasswordString);
+        textViewEmail.setText(textViewEmailString);
+
+        textViewLogout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(HomeActivity.this, MainActivity.class));
+            }
+        });
+
+        btnEditDetails = findViewById(R.id.btnEditDetails);
+        btnEditDetails.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                editUserDidals();
+            }
+        });
+
+        btnChangePassword = findViewById(R.id.btnChangePassword);
+        btnChangePassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                changePassword();
+            }
+        });
+    }
+
+    public void changePassword() {
+        alertDialogBuilder = new AlertDialog.Builder(HomeActivity.this);
+        inflater = LayoutInflater.from(HomeActivity.this);
+        final View view = inflater.inflate(R.layout.popup_password, null);
+        final EditText editTextPasswordPopup = view.findViewById(R.id.editTextPasswordPopup);
+        final EditText editTextConfPasswordPopup = view.findViewById(R.id.editTextConfPasswordPopup);
+
+        alertDialogBuilder.setView(view);
+        dialog = alertDialogBuilder.create();
+        dialog.show();
+
+        final User user = new User();
+        user.setId(textViewID);
+        user.setUserName(textViewNameString);
+        user.setEmail(textViewEmailString);
+        user.setPassword(textViewPasswordString);
+
+        editTextPasswordPopup.setText(user.getPassword());
+
+        final DatabaseHelper db = new DatabaseHelper(HomeActivity.this);
+
+        Button saveButtonPassword = view.findViewById(R.id.saveButtonPassword);
+
+        saveButtonPassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d("check", editTextConfPasswordPopup.getText().toString());
+                Log.d("check", editTextPasswordPopup.getText().toString());
+
+               // if (Integer.parseInt(editTextPasswordPopup.getText().toString()) == Integer.parseInt(editTextPasswordPopup.getText().toString()) ) {
+                if (!editTextPasswordPopup.getText().toString().isEmpty()
+                        && !editTextConfPasswordPopup.getText().toString().isEmpty()) {
+                    user.setPassword(editTextConfPasswordPopup.getText().toString());
+                    db.updateUser(user);
+                    Toast.makeText(HomeActivity.this, "Password Updated ", Toast.LENGTH_SHORT).show();
+                    Snackbar.make(v, "Details Saved!", Snackbar.LENGTH_LONG).show();
+                    startActivity(new Intent(HomeActivity.this, MainActivity.class));
+                } else{
+                    Snackbar.make(view, "Don't save ", Snackbar.LENGTH_LONG).show();
+                    Toast.makeText(HomeActivity.this, "Problem in Updating Password ", Toast.LENGTH_SHORT).show();
+                }
+                dialog.dismiss();
+
+            }
+        });
+    }
+
+
+    public void editUserDidals() {
+        alertDialogBuilder = new AlertDialog.Builder(HomeActivity.this);
+        inflater = LayoutInflater.from(HomeActivity.this);
+        final View view = inflater.inflate(R.layout.popup, null);
+        final EditText editTextUsername = view.findViewById(R.id.editTextUsername);
+        final EditText editTextEmail = view.findViewById(R.id.editTextEmail);
+
+        alertDialogBuilder.setView(view);
+        dialog = alertDialogBuilder.create();
+        dialog.show();
+
+        final User user = new User();
+        user.setId(textViewID);
+        user.setUserName(textViewNameString);
+        user.setEmail(textViewEmailString);
+        //user.setPassword(textViewPasswordString);
+
+        editTextUsername.setText(user.getUserName());
+        editTextEmail.setText(user.getEmail());
+
+        final DatabaseHelper db = new DatabaseHelper(HomeActivity.this);
+
+        Button saveButton = view.findViewById(R.id.saveButton);
+
+        saveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                user.setUserName(editTextUsername.getText().toString());
+                user.setEmail(editTextEmail.getText().toString());
+
+                if (!editTextUsername.getText().toString().isEmpty()
+                        && !editTextEmail.getText().toString().isEmpty()) {
+                    db.updateUser(user);
+                    Snackbar.make(v, "Details Saved!", Snackbar.LENGTH_LONG).show();
+                    startActivity(new Intent(HomeActivity.this, MainActivity.class));
+                } else {
+                    Snackbar.make(view, "Don't save ", Snackbar.LENGTH_LONG).show();
+                }
+                dialog.dismiss();
+
+            }
+        });
+    }
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                Intent i = new Intent(getApplicationContext(),MainActivity.class);
+                startActivity(i);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+}
+
+activity_home.xml
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    tools:context=".HomeActivity"
+    >
+
+    <TextView
+        android:id="@+id/textViewUserName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="welcome_user"
+        android:textColor="#123456"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textViewLogout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Logout"
+        android:textColor="#99C0C5"
+        android:textSize="26sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="60dp"
+        android:text="Details"
+        android:textColor="#000"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="104dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="User Name: "
+                        android:textColor="#000"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/textViewName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:text="name"
+                        android:textSize="23sp"
+                        android:textStyle="italic" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Email:            "
+                        android:textColor="#000"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/textViewEmail"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:text="Email"
+                        android:textSize="12sp"
+                        android:textStyle="italic" />
+
+                </LinearLayout>
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="60dp">
+
+                    <Button
+                        android:id="@+id/btnEditDetails"
+                        style="?android:attr/borderlessButtonStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="16dp"
+                        android:text="Edit"
+                        android:textColor="#00BCD4" />
+
+                    <Button
+                        android:id="@+id/btnChangePassword"
+                        style="?android:attr/borderlessButtonStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Change password"
+                        android:textColor="#00BCD4" />
+                </LinearLayout>
+
+
+            </LinearLayout>
+
+
+        </androidx.cardview.widget.CardView>
+
+
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+DatabaseHelper.Java
+
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
+
+import androidx.annotation.Nullable;
+
+
+import Model.User;
+import Util.Constants;
+
+public class DatabaseHelper extends SQLiteOpenHelper {
+
+    private Context ctx;
+
+    public DatabaseHelper(@Nullable Context context) {
+        super(context, Constants.DB_NAME, null, Constants.DB_VERSION);
+        this.ctx = context;
+    }
+
+
+    @Override
+    public void onCreate(SQLiteDatabase db) {
+        String CREATE_REGISTER_TABLE = "CREATE TABLE " + Constants.TABLE_NAME + "("
+                + Constants.KEY_ID + " INTEGER PRIMARY KEY,"
+                + Constants.KEY_USERNAME + " TEXT,"
+                + Constants.KEY_PASSWORD + " TEXT,"
+                + Constants.KEY_EMAIL + " TEXT UNIQUE)";
+        Log.d("TableCreated", "done");
+        db.execSQL(CREATE_REGISTER_TABLE);
+    }
+
+
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        db.execSQL("DROP TABLE IF EXISTS " + Constants.TABLE_NAME);
+
+        onCreate(db);
+    }
+
+    /*
+     * CRUD OPERATIONS : CREATE -->  add user  , DELETE , UPDATE  METHODS .
+     *
+     */
+
+    public long addUser(User user) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(Constants.KEY_USERNAME, user.getUserName());
+        values.put(Constants.KEY_PASSWORD, user.getPassword());
+        values.put(Constants.KEY_EMAIL, user.getEmail());
+
+        // Error
+        long res = db.insert(Constants.TABLE_NAME, null, values);
+        Log.d("Saved!", "saved to DB");
+        db.close();
+        return res;
+
+    }
+
+
+
+
+
+
+    public int updateUser(User user) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(Constants.KEY_USERNAME, user.getUserName());
+        values.put(Constants.KEY_PASSWORD, user.getPassword());
+        values.put(Constants.KEY_EMAIL, user.getEmail());
+        return db.update(Constants.TABLE_NAME, values, Constants.KEY_ID + "=?",
+                new String[]{String.valueOf(user.getId())});
+    }
+
+
+
+    public int getUsersCount() {
+        String countQuery = "SELECT * FROM " + Constants.TABLE_NAME;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(countQuery, null);
+        return cursor.getCount();
+    }
+
+
+    public Boolean checkUser(String email, String password) {
+        String[] columns = {Constants.KEY_ID};
+        SQLiteDatabase db = getReadableDatabase();
+        String selection = Constants.KEY_USERNAME + "=?" + " and " + Constants.KEY_PASSWORD + "=?";
+        String[] selectionArgs = {email, password};
+        Cursor cursor = db.query(Constants.TABLE_NAME, columns, selection, selectionArgs, null, null, null);
+        int count = cursor.getCount();
+        cursor.close();
+        db.close();
+
+        if (count > 0)
+            return true;
+        else
+            return false;
+    }
+
+
+    
+    public String selectOneUserSendUserName(String email, String password) {
+        SQLiteDatabase db = getReadableDatabase();
+
+        Cursor c = db.rawQuery("SELECT * FROM " + Constants.TABLE_NAME + " WHERE " + Constants.KEY_USERNAME + " = '"+email.trim()+"'" +" and "+ Constants.KEY_PASSWORD + " = '"+password.trim()+"'" , null);
+        c.moveToFirst();
+
+        int x = 0 ;
+        String y = "";
+        while (c != null) {
+            x = Integer.parseInt(c.getString(c.getColumnIndex(Constants.KEY_ID)));
+            y = c.getString(c.getColumnIndex(Constants.KEY_USERNAME));
+            Log.d("tagOneUser", Integer.toString(x) );
+            Log.d("tagOneUser", y );
+            break;
+        }
+        c.moveToNext();
+        return y;
+    }
+    public int selectOneUserSendId(String email, String password) {
+        SQLiteDatabase db = getReadableDatabase();
+
+        Cursor c = db.rawQuery("SELECT * FROM " + Constants.TABLE_NAME + " WHERE " + Constants.KEY_USERNAME + " = '"+email.trim()+"'" +" and "+ Constants.KEY_PASSWORD + " = '"+password.trim()+"'" , null);
+        c.moveToFirst();
+
+        int x = 0 ;
+        String y = "";
+        while (c != null) {
+            x = Integer.parseInt(c.getString(c.getColumnIndex(Constants.KEY_ID)));
+            y = c.getString(c.getColumnIndex(Constants.KEY_USERNAME));
+            Log.d("tagOneUser", Integer.toString(x) );
+            Log.d("tagOneUser", y );
+            break;
+        }
+        c.moveToNext();
+        return x;
+    }
+
+
+}
+DataModel Class:
+User.Java
+public class User {
+    private int id;
+    private String userName;
+    private String password;
+    private String email ;
+
+    public User(int id, String userName, String password, String email) {
+        this.id = id;
+        this.userName = userName;
+        this.password = password;
+        this.email = email;
+    }
+
+    public User() {
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", userName='" + userName + '\'' +
+                ", password='" + password + '\'' +
+                ", email='" + email + '\'' +
+                '}';
+    }
+}
+
+Constants.Java
+public class Constants {
+    public static final int DB_VERSION = 1;
+    public static final String DB_NAME = "register.db";
+    public static final String TABLE_NAME = "registerUser";
+
+
+    //Table Columns
+    public static final String KEY_ID = "id";
+    public static final String KEY_USERNAME = "userName";
+    public static final String KEY_PASSWORD = "password";
+    public static final String KEY_EMAIL = "email";
+}
+
+
+popup.xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout_id"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="25dp">
+
+            <TextView
+                android:id="@+id/tile"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="15dp"
+                android:text="Edit Details"
+                android:textSize="18sp"
+                android:textStyle="italic" />
+
+            <EditText
+                android:id="@+id/editTextUsername"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tile"
+                android:hint="UserName"
+                android:textSize="18sp" />
+
+            <EditText
+                android:id="@+id/editTextEmail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/editTextUsername"
+                android:layout_marginTop="15dp"
+                android:hint="Email"
+
+                />
+
+
+            <Button
+                android:id="@+id/saveButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/editTextEmail"
+                android:layout_marginTop="5dp"
+                android:background="@color/colorAccent"
+                android:text="Save"
+                android:textColor="#fff"
+                android:textStyle="bold" />
+
+        </RelativeLayout>
+    </androidx.cardview.widget.CardView>
+</LinearLayout>
+
+Popup_password.xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout_id"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="25dp">
+
+            <TextView
+                android:id="@+id/tile"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="15dp"
+                android:text="Change password"
+                android:textSize="18sp"
+                android:textStyle="italic" />
+
+            <EditText
+                android:id="@+id/editTextPasswordPopup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tile"
+                android:hint="Password"
+                android:inputType="textPassword"
+                android:textSize="18sp" />
+
+            <EditText
+                android:id="@+id/editTextConfPasswordPopup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/editTextPasswordPopup"
+                android:layout_marginTop="15dp"
+                android:inputType="textPassword"
+                android:hint="Conf Password"
+
+                />
+
+
+            <Button
+                android:id="@+id/saveButtonPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/editTextConfPasswordPopup"
+                android:layout_marginTop="5dp"
+                android:background="@color/colorAccent"
+                android:text="Save"
+                android:textColor="#fff"
+                android:textStyle="bold" />
+
+        </RelativeLayout>
+    </androidx.cardview.widget.CardView>
+</LinearLayout>
+
+Colors.xml
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#5CA8C7</color>
+    <color name="colorPrimaryDark">#9FC9DB</color>
+    <color name="colorAccent">#75A9B4</color>
+</resources>
+
+Styles.xml
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+</resources>
+
+Drawable/BG.XML
+
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape>
+            <gradient
+                android:angle="90"
+                android:startColor="#96C6D5"
+                android:endColor="#99B6B9"
+                android:type="linear" />
+        </shape>
+    </item>
+</selector>
+
+
+Drawable/Button.xml
+
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape>
+            <corners android:radius="5dp"/>
+            <solid android:color="#F2F2F2" />
+            <stroke android:width="0.5dp" android:color="#BEBDBD" />
+        </shape>
+    </item>
+</layer-list>
+
+Drawable/Edit_text_button.xml
+
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape>
+            <corners android:bottomLeftRadius="5dp"
+                android:bottomRightRadius="5dp"/>
+            <solid android:color="#F2F2F2" />
+            <stroke android:width="0.2dp" android:color="#BEBDBD" />
+        </shape>
+    </item>
+</layer-list>
+
+Drawable /Edit_text_middle.xml
+
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape>
+            <corners android:radius="0dp"/>
+            <solid android:color="#F2F2F2" />
+            <stroke android:width="0.2dp" android:color="#BEBDBD" />
+        </shape>
+    </item>
+</layer-list>
+
+
+Drawable/Edit_text_top.xml
+
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+<item>
+    <shape>
+        <corners android:topLeftRadius="5dp"
+            android:topRightRadius="5dp"/>
+        <solid android:color="#F2F2F2" />
+        <stroke android:width="0.2dp" android:color="#BEBDBD" />
+    </shape>
+</item>
+</layer-list>
+
+
