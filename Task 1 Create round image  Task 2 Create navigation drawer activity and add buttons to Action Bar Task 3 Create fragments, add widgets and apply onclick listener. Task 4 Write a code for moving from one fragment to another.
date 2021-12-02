@@ -1,0 +1,269 @@
+Round Image
+
+Step1: go to gradle (app) add:
+		implementation 'de.hdodenhof:circleimageview:2.2.0'
+
+
+
+Step 2:
+
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="wrap_content"
+        android:layout_height="250dp"
+        android:contentDescription="@string/img"
+        android:scaleType="centerCrop"
+        android:src="@drawable/beach"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:src="@drawable/sunset"
+        app:civ_border_color="@android:color/white"
+        app:civ_border_width="4dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/imageView"
+        app:layout_constraintVertical_bias="0.358" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+
+
+
+Adding buttons in Action Bar
+
+Step 1:
+Right click on java folder :
+add vector asset for delete and share
+
+Step 2: Create menu.xml in res
+•	Go to menu.xml and add items that will be appear in action bar
+•	Delete, share, setting items
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+<item
+    android:title="Delete"
+    android:icon="@drawable/ic_delete"
+    android:id="@+id/delete"
+    app:showAsAction="ifRoom"/>
+
+    <item
+        android:title="Share"
+        android:icon="@drawable/ic_share"
+        android:id="@+id/share"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:title="Setting"
+        android:id="@+id/setting"
+        app:showAsAction="never"/>
+</menu>
+
+Step 3: Go java main 
+•	Create onCreateOptionMenu
+•	Inflate the menu layout
+
+@Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater= getMenuInflater();
+        inflater.inflate(R.menu.menu,menu);
+        return true;
+    }
+
+Step 4:
+Apply onclick listener to actionbar buttons
+
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+
+        switch (item.getItemId())
+        {
+            case R.id.delete:
+                Toast.makeText(this,"Delete is pressed", Toast.LENGTH_SHORT).show();
+                break;
+
+            case R.id.share:
+                Toast.makeText(this,"Share is pressed", Toast.LENGTH_SHORT).show();
+                break;
+
+            case R.id.setting:
+                Toast.makeText(this,"Setting is pressed", Toast.LENGTH_SHORT).show();
+                break;
+        }
+    return super.onOptionsItemSelected(item);
+    }
+}
+
+Step 5: Adding Search option
+•	Go to app-> new vector asset-> search for search clipart
+•	Go menu.xml
+•	Create item for search
+<item
+    android:title="Search"
+    android:icon="@drawable/ic_search"
+    android:id="@+id/search"
+    app:showAsAction="ifRoom|collapseActionView"
+    app:actionViewClass="androidx.appcompat.widget.SearchView" />
+•	Go MainActivity java
+•	Go to onCreateOtionMenu method
+•	Create On ActionExpandListener Object
+
+
+
+@Override
+public boolean onCreateOptionsMenu(Menu menu) {
+    MenuInflater inflater = getMenuInflater();
+    inflater.inflate(R.menu.menu, menu);
+
+    MenuItem.OnActionExpandListener OnActionExpandListener = new MenuItem.OnActionExpandListener() {
+        @Override
+        public boolean onMenuItemActionExpand(MenuItem item) {
+            Toast.makeText(MainActivity.this, "Search is Expanded", Toast.LENGTH_SHORT).show();
+            return true;
+        }
+
+        @Override
+        public boolean onMenuItemActionCollapse(MenuItem item) {
+            Toast.makeText(MainActivity.this, "Search is Collapse", Toast.LENGTH_SHORT).show();
+            return true;
+        }
+
+    };
+    menu.findItem(R.id.search).setOnActionExpandListener(OnActionExpandListener);
+
+
+    return true;
+
+}
+
+Complete Code
+
+Main.Java
+
+
+import android.app.SearchManager;
+import android.content.Context;
+import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.os.Bundle;
+import android.view.MenuItem;
+import android.widget.SearchView;
+import android.widget.Switch;
+import android.widget.Toast;
+
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
+
+public class MainActivity extends AppCompatActivity {
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+
+    }
+
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+
+        MenuItem.OnActionExpandListener OnActionExpandListener = new MenuItem.OnActionExpandListener() {
+            @Override
+            public boolean onMenuItemActionExpand(MenuItem item) {
+                Toast.makeText(MainActivity.this, "Search is Expanded", Toast.LENGTH_SHORT).show();
+                return true;
+            }
+
+            @Override
+            public boolean onMenuItemActionCollapse(MenuItem item) {
+                Toast.makeText(MainActivity.this, "Search is Collapse", Toast.LENGTH_SHORT).show();
+                return true;
+            }
+
+        };
+        menu.findItem(R.id.search).setOnActionExpandListener(OnActionExpandListener);
+
+
+        return true;
+
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+
+        switch (item.getItemId())
+        {
+            case R.id.delete:
+                Toast.makeText(this,"Delete is pressed", Toast.LENGTH_SHORT).show();
+                break;
+
+            case R.id.share:
+                Toast.makeText(this,"Share is pressed", Toast.LENGTH_SHORT).show();
+                break;
+
+            case R.id.setting:
+                Toast.makeText(this,"Setting is pressed", Toast.LENGTH_SHORT).show();
+                break;
+        }
+    return super.onOptionsItemSelected(item);
+    }
+}
+
+Menu.xml
+
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:title="Search"
+        android:icon="@drawable/ic_search"
+        android:id="@+id/search"
+        app:showAsAction="ifRoom|collapseActionView"
+        app:actionViewClass="androidx.appcompat.widget.SearchView" />
+
+    <item
+    android:title="Delete"
+    android:icon="@drawable/ic_delete"
+    android:id="@+id/delete"
+    app:showAsAction="ifRoom"/>
+
+    <item
+        android:title="Share"
+        android:icon="@drawable/ic_share"
+        android:id="@+id/share"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:title="Setting"
+        android:id="@+id/setting"
+        app:showAsAction="never"/>
+</menu>
