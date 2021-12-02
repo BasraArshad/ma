@@ -1,3 +1,11 @@
+ android:exported="true"
+
+
+
+
+
+
+
 MainActivity.Java
 import androidx.appcompat.app.AppCompatActivity;
 
