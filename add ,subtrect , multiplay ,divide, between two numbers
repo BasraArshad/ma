@@ -1,0 +1,257 @@
+activity_main.xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="16dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+   >
+
+    <EditText
+        android:id="@+id/edit_text_number1"
+        android:layout_width="match_parent"
+        android:hint="number 1"
+        android:inputType="number"
+        android:layout_height="wrap_content" />
+    <EditText
+        android:id="@+id/edit_text_number2"
+        android:layout_width="match_parent"
+        android:hint="number 2"
+        android:inputType="number"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Result"
+        android:id="@+id/text_view_result"
+        android:textSize="30sp"
+        />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Open Activity"
+        android:id="@+id/button_open_activity2"/>
+
+
+</LinearLayout>
+
+activity_2.xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    tools:context=".Activity2">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="30sp"
+        android:id="@+id/text_view_numbers"
+        android:text="Numbers"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/button_add"
+        android:text="Add"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/button_subtract"
+        android:text="Subtract"/>
+
+</LinearLayout>
+
+MainActivity.Java
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Bundle;
+import android.content.Intent;
+import android.net.Uri;
+
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import org.w3c.dom.Text;
+
+public class MainActivity extends AppCompatActivity {
+
+
+    private TextView mTextViewResult;
+    private EditText mEditTextNumber1;
+    private EditText mEditTextNumber2;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        mTextViewResult= (TextView) findViewById(R.id.text_view_result);
+        mEditTextNumber1= (EditText) findViewById(R.id.edit_text_number1);
+        mEditTextNumber2= (EditText) findViewById(R.id.edit_text_number2);
+
+        Button buttonOpenActivity2 = (Button) findViewById(R.id.button_open_activity2);
+        buttonOpenActivity2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mEditTextNumber1.getText().toString().equals("") || mEditTextNumber2.getText().toString().equals(""))
+                {
+                    Toast.makeText(MainActivity.this, "Please Insert numbers", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    int number1 = Integer.parseInt(mEditTextNumber1.getText().toString());
+                    int number2 = Integer.parseInt(mEditTextNumber2.getText().toString());
+
+                    Intent intent = new Intent(MainActivity.this, Activity2.class);
+                    intent.putExtra("number1", number1);
+                    intent.putExtra("number2", number2);
+                    startActivityForResult(intent, 1);
+                }
+
+            }
+        });
+
+
+
+        }
+    protected void onActivityResult ( int requestCode, int resultCode,
+                                      Intent data){
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1) {
+            if (resultCode == RESULT_OK) {
+                int result = data.getIntExtra("result", 0);
+                mTextViewResult.setText("" + result);
+            }
+            if (resultCode == RESULT_CANCELED) {
+                mTextViewResult.setText(" Nothing Selected");
+            }
+
+
+        }
+    }
+}
+
+Activity2.Java
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+
+public class Activity2 extends AppCompatActivity {
+    int number1;
+    int number2;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_2);
+        setTitle("ACTIVITY 2");
+        Intent intent= getIntent();
+        number1=intent.getIntExtra("number1", 0);
+        number2= intent.getIntExtra("number2", 0);
+        TextView textViewNumbers= (TextView) findViewById(R.id.text_view_numbers);
+        textViewNumbers.setText("Numbers:"+number1+ "," + number2);
+        Button buttonAdd= (Button) findViewById(R.id.button_add);
+        Button buttonSubtract= (Button) findViewById(R.id.button_subtract);
+        buttonAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int result= number1 + number2;
+                Intent resulintent= new Intent();
+                resulintent.putExtra("result", result);
+                setResult(RESULT_OK, resulintent);
+                finish();
+            }
+
+
+        });
+
+        buttonSubtract.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int result= number1 - number2;
+                Intent resulintent= new Intent();
+                resulintent.putExtra("result", result);
+                setResult(RESULT_OK, resulintent);
+                finish();
+
+            }
+        });
+
+    }
+}
+
+Implicit Intents
+
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/urlText"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="100dp"
+        android:ems="10" />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btnNavigate"
+        android:layout_below="@+id/urlText"
+        android:text="Navigate"
+        android:layout_centerHorizontal="true" />
+</RelativeLayout>
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Bundle;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+public class implicitintents extends AppCompatActivity {
+
+
+        @Override
+        protected void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.activity_implicitintents);
+            final EditText editText = (EditText)findViewById(R.id.urlText);
+            Button btn = (Button) findViewById(R.id.btnNavigate);
+            btn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String url = editText.getText().toString();
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                    startActivity(intent);
+                }
+            });
+        }
+    }
+
+
+
