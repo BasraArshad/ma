@@ -1,0 +1,82 @@
+MainActivity.java
+
+
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.app.DatePickerDialog;
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import java.text.BreakIterator;
+import java.util.Calendar;
+
+public class MainActivity extends AppCompatActivity {
+
+
+    ListView listView;
+    String mTitle[] = {"Facebook", "Whatsapp", "Twitter", "Instagram", "Youtube"};
+    String mDescription[] = {"Facebook Description", "Whatsapp Description", "Twitter Description", "Instagram Description", "Youtube Description"};
+    int images[] = {R.drawable.fb, R.drawable.whatsapp, R.drawable.twitter, R.drawable.insta, R.drawable.youtube};
+    // so our images and other things are set in array
+
+    // now paste some images in drawable
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        listView = (ListView) findViewById(R.id.listView);
+
+        MyAdapter adapter = new MyAdapter(this, mTitle, mDescription, images);
+        listView.setAdapter(adapter);
+
+
+        // now set item click on list view
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                int index = position;
+                Toast.makeText(MainActivity.this, "You selected " + mTitle[index], Toast.LENGTH_SHORT).show();
+
+            }
+        });
+        // so item click is done now check list view
+    }
+}
+
+
+
+
+activity_main.xml
+
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout  xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/listView"
+        >
+
+    </ListView>
+
+</LinearLayout>
